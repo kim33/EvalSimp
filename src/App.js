@@ -1,25 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React, { useState } from "react";
+import InstructionPage from "./components/instruction";
+import SamplePage from "./components/sample_q";
+import SurveyPage from "./components/survey";
 
-function App() {
+const App = () => {
+  const [page, setPage] = useState("instructions");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="p-6 max-w-4xl mx-auto">
+      {page === "instructions" && <InstructionPage onNext={() => setPage("sample")} />}
+      {page === "sample" && <SamplePage onNext={() => setPage("survey")} onBack={() => setPage("instructions")} />}
+      {page === "survey" && <SurveyPage onBack={() => setPage("sample")} />}
     </div>
   );
-}
+};
 
 export default App;
