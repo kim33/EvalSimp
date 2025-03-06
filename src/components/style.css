@@ -1,0 +1,252 @@
+/* General Page Styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 20px;
+}
+
+.instruction-container {
+  max-width: 980px;
+  background: white;
+  margin: auto;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+/* Main Container */
+.evaluation-container {
+  max-width: 980px;
+  background: white;
+  margin: auto;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Section Headers */
+.evaluation-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Passages Section */
+.passages-container {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+/* Individual Passage Box */
+.passage-box {
+  flex: 1;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Ensure Both Passages Take Equal Space */
+.passage-box:nth-child(1),
+.passage-box:nth-child(2) {
+  min-width: 0;
+}
+
+
+.passage-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.passage-text {
+  text-align: justify;
+  line-height: 1.5;
+  width: 200;
+  color: #555;
+}
+
+/* Text Input */
+.textarea-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  resize: none;
+  margin-top: 10px;
+  height: 100px;
+  width: 400px;
+}
+
+/* Question Blocks */
+.question-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+}
+
+/* Labels & Descriptions */
+.question-label {
+  font-weight: bold;
+  color: #333;
+  font-size: 1rem;
+  width: 300px;
+  margin-bottom: 15px;
+}
+
+.question-description {
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: 5px;
+  display: block;
+}
+
+/* Dropdown & Input Styling */
+.select-box,
+.comment-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.select-box {
+  cursor: pointer;
+  width: 150px;
+  height: 50px;
+}
+
+/* Textarea Resizing */
+.comment-box {
+  resize: none;
+  height: 60px;
+  width: 420px;
+}
+
+/* Button Styling */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button-back {
+  background-color: #6c757d;
+  color: white;
+}
+
+.button-next {
+  background-color: #007bff;
+  color: white;
+}
+
+.button:hover {
+  opacity: 0.85;
+  background-color: #45a049;
+}
+
+
+.radio-buttons {
+  display: flex;
+  flex-direction: column;  /* Stacks the boxes vertically (on separate lines) */
+  width: 100%;  /* Ensure the container takes up full width */
+}
+
+.radio-button-container {
+  display: flex;
+  align-items: center;  /* Vertically centers the content inside each box */
+  justify-content: space-between;  /* Pushes the text to the left and the button to the right */
+  padding: 10px;
+  border: 1px solid #ccc;  /* Border around each box */
+  border-radius: 5px;  /* Rounded corners */
+  margin-bottom: 10px;  /* Adds space between the boxes */
+}
+
+.radio-label {
+  margin-right: 10px;  /* Adds space between the label and the radio button */
+}
+
+.radio-button {
+  margin: 0;  /* Removes default margin around the radio button */
+  cursor: pointer;  /* Pointer cursor for the button */
+}
+
+.radio-button-container:hover {
+  background-color: #f0f0f0;  /* Light background on hover */
+}
+
+.radio-button:checked + .radio-label {
+  font-weight: bold;  /* Bold the label when the radio button is checked */
+}
+
+
+.radio-question-container {
+  margin-bottom: 20px;  /* Adjust this value to control the space between the radio buttons and the next question */
+}
+
+.comment-container {
+  margin-top: 20px;  /* Optional: Adds some margin before the open-text question */
+}
+
+.textarea-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  resize: vertical; /* Allows vertical resizing of the textarea */
+}
+
+.evaluation-container {
+  margin-bottom: 20px;
+}
+
+.question-label {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.textarea-input {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.rephrase-container {
+  margin-top: 20px;
+}
+
+mark {
+  background-color: yellow;
+  padding: 2px;
+  font-weight: bold;
+}
