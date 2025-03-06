@@ -9,9 +9,10 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
 });
 
+// Vercel serverless function handler
 module.exports = async (req, res) => {
   try {
-    const { user_id } = req.query;
+    const { user_id } = req.query;  // Use `req.query` instead of `req.params` if it's passed in the query string.
     console.log('Fetching passage for user_id:', user_id);
 
     const numericUserId = parseInt(user_id, 10);
