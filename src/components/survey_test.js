@@ -341,7 +341,6 @@ if (endpage) {
             </div>
           </div>
           <div className="evaluation-container comment-container">
-              <div className="rephrase-container">
                 <h3>Please provide the main argument of Passage 1 and Passage 2 in a single sentence </h3>
                 <textarea
                   name = "topic"
@@ -351,7 +350,6 @@ if (endpage) {
                   placeholder="Please provide a main argument of the given passages."
                   required
                 />
-              </div>
             </div>
 
           <form onSubmit={handleSubmit} className="evaluation-form">
@@ -459,7 +457,6 @@ if (endpage) {
               />
             </div>
             <div className="evaluation-container comment-container">
-              <div className="rephrase-container">
                 <h3>Please review selected sentences from Passage 1.</h3>
                 <h3>If there are certain complex phrases in the selected sentence, please mark them with [ ] in the textbox below.</h3>
                 <span className="instructiont-text">
@@ -474,10 +471,8 @@ if (endpage) {
                   placeholder="Please select complex sentences that need to be simplified."
                   required
                 />
-              </div>
             </div>
             <div className="evaluation-container comment-container">
-              <div className="rephrase-container">
                 <h3>Please select complex sentences from Passage 2.</h3>
                 <h3>If there are certain complex phrases in the selected sentence, please mark them with [ ] in the textbox below.</h3>
                 <span className="instructiont-text">
@@ -492,7 +487,6 @@ if (endpage) {
                   placeholder="Please select complex sentences that need to be simplified."
                   required
                 />
-              </div>
             </div>
 
             <div className="button-container">
