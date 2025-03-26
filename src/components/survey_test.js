@@ -12,6 +12,7 @@ const SurveyPage = ({ onBack }) => {
   const [isHighlighted, setIsHighlighted] = useState(false); 
   const [hoveredSentenceA, setHoveredSentenceA] = useState(null); 
   const [hoveredSentenceB, setHoveredSentenceB] = useState(null); 
+
   const [answers, setAnswers] = useState({
     understanding: "",
     naturalness: "",
@@ -32,6 +33,7 @@ const SurveyPage = ({ onBack }) => {
 
   const [isStartClicked, setIsStartClicked] = useState(false);
 
+
   const handleUserIdChange = (e) => {
     setUserId(e.target.value);
   };
@@ -39,6 +41,7 @@ const SurveyPage = ({ onBack }) => {
   const handleTopicChange = (e) => {
     setTopic(e.target.value); // Update state as user types
   };
+
 
   const handleUserIdSubmit = async () => {
     console.log("Current userId before API call:", userId);
@@ -77,7 +80,6 @@ const SurveyPage = ({ onBack }) => {
   };
   // Function to reset the form states
 const resetForm = () => {
-    // Clear text inputs (responses)
   setAnswers({
     understanding: "",
     naturalness: "",
@@ -92,6 +94,7 @@ const resetForm = () => {
   });  // Clear comments
   setSelectedSentencesA([]);
   setSelectedSentencesB([]);
+
 };
 
 // Fetch new passage and reset form
@@ -146,6 +149,7 @@ if (endpage) {
     }));
   };
   
+
   const handleSentenceClick = (sentence, passageChoice) => {
     if (passageChoice === "A") {
       setSelectedSentencesA((prevSelected) => {
@@ -190,7 +194,6 @@ if (endpage) {
   };
 
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -210,6 +213,7 @@ if (endpage) {
       !dataToSubmit.simplicity ||
       !dataToSubmit.complex_a ||
       !dataToSubmit.complex_b
+
     ) {
       alert("Please fill in all required fields.");
       return; // Prevent form submission if required fields are missing
@@ -217,6 +221,7 @@ if (endpage) {
 
     try {
       // Send the data to the backend for saving
+
       console.log(dataToSubmit)
       await axios.post(`http://localhost:5004/submit`, dataToSubmit);
       alert("Response submitted!");
@@ -228,8 +233,6 @@ if (endpage) {
       alert("Error submitting response. Please try again.");
     }
   };
-
-  
   return (
     <div className="evaluation-container">
       <h1 className="evaluation-title">Survey: Evaluation of Simplified Summary</h1>
@@ -350,6 +353,7 @@ if (endpage) {
                 />
               </div>
             </div>
+
           <form onSubmit={handleSubmit} className="evaluation-form">
             {/* Question for Understanding */}
             <div className="question-container">
@@ -372,6 +376,7 @@ if (endpage) {
                 <option value="">Select</option>
                 <option value="Passage 1">Passage 1</option>
                 <option value="Passage 2">Passage 2</option>
+
                 <option value="No Difference">No Difference</option>
               </select>
               <textarea
@@ -414,6 +419,7 @@ if (endpage) {
                 onChange={handleCommentChange}
                 className="comment-box"
                 placeholder="Please explain your choice with short justification"
+
                 required
                 minLength={30}
               />
