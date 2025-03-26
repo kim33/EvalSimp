@@ -147,12 +147,13 @@ body {
 }
 
 .button {
-  padding: 12px 20px;
-  font-size: 1rem;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: 0.3s ease;
 }
 
 .button-back {
@@ -167,45 +168,7 @@ body {
 
 .button:hover {
   opacity: 0.85;
-}
-
-
-.radio-buttons {
-  display: flex;
-  flex-direction: column;  /* Stacks the boxes vertically (on separate lines) */
-  width: 100%;  /* Ensure the container takes up full width */
-}
-
-.radio-button-container {
-  display: flex;
-  align-items: center;  /* Vertically centers the content inside each box */
-  justify-content: space-between;  /* Pushes the text to the left and the button to the right */
-  padding: 10px;
-  border: 1px solid #ccc;  /* Border around each box */
-  border-radius: 5px;  /* Rounded corners */
-  margin-bottom: 10px;  /* Adds space between the boxes */
-}
-
-.radio-label {
-  margin-right: 10px;  /* Adds space between the label and the radio button */
-}
-
-.radio-button {
-  margin: 0;  /* Removes default margin around the radio button */
-  cursor: pointer;  /* Pointer cursor for the button */
-}
-
-.radio-button-container:hover {
-  background-color: #f0f0f0;  /* Light background on hover */
-}
-
-.radio-button:checked + .radio-label {
-  font-weight: bold;  /* Bold the label when the radio button is checked */
-}
-
-
-.radio-question-container {
-  margin-bottom: 20px;  /* Adjust this value to control the space between the radio buttons and the next question */
+  background-color: #45a049;
 }
 
 .comment-container {
@@ -231,5 +194,33 @@ body {
 }
 
 .textarea-input {
-  margin-top: 5px;
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.rephrase-container {
+  margin-top: 20px;
+}
+
+mark {
+  background-color: yellow;
+  padding: 2px;
+  font-weight: bold;
+}
+
+.clickable-sentence {
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.clickable-sentence.hovered {
+  background-color: rgba(255, 255, 0, 0.4); /* Light yellow highlight */
+}
+
+.clickable-sentence.selected {
+  background-color: rgba(255, 165, 0, 0.5); /* Orange for selected sentences */
 }

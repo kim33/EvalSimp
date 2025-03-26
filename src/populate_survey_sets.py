@@ -1,57 +1,59 @@
 import psycopg2
-from psycopg2.extras import execute_values
-import os
-from dotenv import load_dotenv
 
-# Load environment variables (optional)
-load_dotenv()
+# Database connection details
+DB_NAME = "survey_db"
+DB_USER = "postgres"
+DB_PASSWORD = "postgres"
+DB_HOST = "localhost"  # Change if hosted remotely
+DB_PORT = "5432"  # Default PostgreSQL port
 
-# Database connection settings
-DB_CONFIG = {
-    "dbname": os.getenv("DB_NAME", "survey_db"),
-    "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "postgres"),
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": os.getenv("DB_PORT", "5432"),
-}
+# Connect to PostgreSQL
+conn = psycopg2.connect(
+    dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT
+)
+cursor = conn.cursor()
 
-def create_survey_sets():
-    try:
-        # Connect to PostgreSQL
-        conn = psycopg2.connect(**DB_CONFIG)
-        cur = conn.cursor()
+# Populate survey_set_passages table with 10 passages per survey set
+try:
+    # Fetch all survey set IDs
+    cursor.execute("SELECT id FROM survey_sets;")
+    survey_set_ids = cursor.fetchall()
 
-        # Fetch all passage IDs randomly
-        cur.execute("SELECT id FROM passages ORDER BY RANDOM()")
-        passage_ids = [row[0] for row in cur.fetchall()]
+    # Fetch all passage IDs in order
+    cursor.execute("SELECT id FROM passages ORDER BY id;")
+    passage_ids = cursor.fetchall()
 
-        # Divide into survey sets (20 passages each)
-        batch_size = 20
-        survey_sets = [passage_ids[i:i + batch_size] for i in range(0, len(passage_ids), batch_size)]
+    # Initialize variables
+    passage_index = 0  # To keep track of which passage we're at
+    num_passages = len(passage_ids)
 
-        print(f"Creating {len(survey_sets)} survey sets...")
+    # Loop over each survey set
+    for survey_set_id in survey_set_ids:
+        survey_set_id = survey_set_id[0]  # Get the actual ID from the tuple
 
-        for idx, passages in enumerate(survey_sets, start=1):
-            # Insert new survey set
-            cur.execute("INSERT INTO survey_sets (name) VALUES (%s) RETURNING id", (f"Survey Set {idx}",))
-            survey_set_id = cur.fetchone()[0]
+        # For each survey set, assign 10 passages (if there are enough passages left)
+        for _ in range(10):
+            if passage_index >= num_passages:
+                break  # Exit if we have run out of passages
 
-            # Link 20 passages to this survey set
-            execute_values(cur, 
-                "INSERT INTO survey_set_passages (survey_set_id, passage_id) VALUES %s", 
-                [(survey_set_id, passage_id) for passage_id in passages]
-            )
+            passage_id = passage_ids[passage_index][0]  # Get passage ID
 
-        # Commit changes
-        conn.commit()
-        print("Survey sets populated successfully!")
+            # Insert the mapping into survey_set_passages table
+            cursor.execute("""
+                INSERT INTO survey_set_passages (survey_set_id, passage_id)
+                VALUES (%s, %s);
+            """, (survey_set_id, passage_id))
 
-    except Exception as e:
-        print("Error:", e)
-    finally:
-        cur.close()
-        conn.close()
+            passage_index += 1  # Move to the next passage
 
-# Run the script
-if __name__ == "__main__":
-    create_survey_sets()
+    # Commit changes
+    conn.commit()
+    print("Survey sets and passages mapped successfully.")
+
+except Exception as e:
+    print("Error inserting data:", e)
+    conn.rollback()
+
+finally:
+    cursor.close()
+    conn.close()

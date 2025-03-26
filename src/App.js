@@ -1,11 +1,17 @@
 // src/App.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import InstructionPage from "./components/instruction";
 import SamplePage from "./components/sample_q";
-import SurveyPage from "./components/survey";
+import SurveyPage from "./components/survey_test";
 
 const App = () => {
   const [page, setPage] = useState("instructions");
+
+  // Update document title when page changes
+  useEffect(() => {
+    
+    document.title = "Evaluate Simplified Scientific Paper Summary";
+  }, []);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

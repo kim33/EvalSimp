@@ -22,7 +22,7 @@ const InstructionPage = ({ onNext }) => {
       </ul>
       
       <p className="mt-4 text-justify">
-        You will receive <strong>20 pairs</strong> of computer science research paper summaries.
+        You will receive <strong>10 pairs</strong> of computer science research paper summaries.
       </p>
 
       <h2 className="mt-6 font-semibold">Your Tasks:</h2>
@@ -35,8 +35,12 @@ const InstructionPage = ({ onNext }) => {
       <h2 className="mt-6 font-semibold">Survey Questions:</h2>
       <ol className="list-decimal ml-6 mt-2">
         <li>Select the passage that best presents a clear argument, fluent English, and efficient sentence structure.</li>
-        <li>Identify complex phrases or words that need further simplification.</li>
+        <li>Identify complex sentences that need to be simplified further.</li>
       </ol>
+
+      <p className="mt-4 font-semibold">
+        Please Click "Next" to check the sample question.
+      </p>
       
       <div className="flex justify-end mt-6">
         <button

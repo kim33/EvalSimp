@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./style.css"; // Assuming this is the correct path to your CSS file
-
-const API_URL = "https://evalsimp-db4vgo7hf-kyuri-ims-projects.vercel.app";
-
 const SurveyPage = ({ onBack }) => {
   const [userId, setUserId] = useState("");
   const [surveySetId, setSurveySetId] = useState(null);
@@ -46,7 +43,7 @@ const SurveyPage = ({ onBack }) => {
       console.log("Converted numericUserId:", numericUserId); // Debugging
   
       // Fetch the passage once the user submits the ID
-      const res = await axios.get(`${API_URL}/api/get-passage/${numericUserId}`, {timeout:10000});
+      const res = await axios.get(`/api/get-passage/${numericUserId}`, {timeout:10000});
       console.log("Received passage:", res.data);
       setPassage(res.data);
       setIsStartClicked(true);  
@@ -92,7 +89,7 @@ const resetForm = () => {
 const fetchPassage = async (userId) => {
   try {
     console.log("Fetching passage for userId:", userId);
-    const res = await axios.get(`${API_URL}/api/get-passage/${userId}`);
+    const res = await axios.get(`/api/get-passage?user_id=${userId}`);
     setPassage(res.data);
     resetForm();
   } catch (error) {
@@ -158,7 +155,7 @@ const fetchPassage = async (userId) => {
 
     try {
       // Send the data to the backend for saving
-      await axios.post(`${API_URL}/api/submit`, dataToSubmit);
+      await axios.post(`/api/submit`, dataToSubmit);
       alert("Response submitted!");
       fetchPassage(userId); // Optionally fetch a new passage after submission
     } catch (error) {
@@ -251,7 +248,7 @@ const fetchPassage = async (userId) => {
                 value={comments.understanding}
                 onChange={handleCommentChange}
                 className="comment-box"
-                placeholder="Add Comment"
+                placeholder="Please explain your choice with short justification"
                 required
                 minLength={30}
               />
@@ -282,7 +279,7 @@ const fetchPassage = async (userId) => {
                 value={comments.naturalness}
                 onChange={handleCommentChange}
                 className="comment-box"
-                placeholder="Add Comment"
+                placeholder="Please explain your choice with short justification"
                 required
                 minLength={30}
               />
@@ -313,7 +310,7 @@ const fetchPassage = async (userId) => {
                 value={comments.simplicity}
                 onChange={handleCommentChange}
                 className="comment-box"
-                placeholder="Add Comment"
+                placeholder="Please explain your choice with short justification"
                 required
                 minLength={30}
               />

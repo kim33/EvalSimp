@@ -5,6 +5,8 @@ require("dotenv").config();  // Make sure this is at the top of your file
 
 const app = express();
 const port = process.env.PORT || 5004;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // PostgreSQL Database Connection
 const pool = new Pool({
@@ -15,11 +17,13 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
 });
 
-app.use(cors({
-  origin: '*', // Allow all origins for development
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
-}));
+pool.connect()
+  .then(() => console.log("Connected to PostgreSQL"))
+  .catch(err => console.error("Connection error", err));
+
+app.use(cors());
+
+  
 
 app.use(express.json());
 
@@ -32,7 +36,8 @@ app.get("/", (req, res) => {
 // Route to handle form submissions
 app.post('/submit', async (req, res) => {
   try {
-    const { userId, passageId, understanding, naturalness, simplicity, fake_complex, improvement_suggestions, understanding_comment, naturalness_comment, simplicity_comment} = req.body;
+    console.log("Received data: ", req.body);
+    const { userId, passageId, understanding, naturalness, simplicity, understanding_comment, naturalness_comment, simplicity_comment, complex_a, complex_b} = req.body;
 
     if (!userId) {
       return res.status(400).json({message : "User ID is required"});
@@ -45,11 +50,11 @@ app.post('/submit', async (req, res) => {
         understanding,
         naturalness,
         simplicity,
-        fake_complex,
-        improvement_suggestions,
         understanding_comment,
         naturalness_comment,
-        simplicity_comment
+        simplicity_comment,
+        complex_a,
+        complex_b
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING id
     `;
@@ -60,15 +65,14 @@ app.post('/submit', async (req, res) => {
       understanding,
       naturalness,
       simplicity,
-      fake_complex,
-      improvement_suggestions,
       understanding_comment,
       naturalness_comment,
-      simplicity_comment
+      simplicity_comment,
+      complex_a,
+      complex_b
     ];
 
     const result = await pool.query(query, values);
-
     res.status(200).send({ message: "Responses saved successfully!", id: result.rows[0].id });
   } catch (error) {
     console.error("Error saving responses:", error);
@@ -106,10 +110,10 @@ app.get("/get-passage/:user_id", async (req, res) => {
     // Get a random passage from the assigned survey set
     const passageResult = await pool.query(
       "SELECT passages.* FROM passages " +
-      "JOIN survey_set_passages ON passages.id = survey_set_passages.passage_id " +
-      "WHERE survey_set_passages.survey_set_id = $1 " +
-      "ORDER BY RANDOM() LIMIT 1",
-      [surveySetId]
+      "INNER JOIN survey_set_passages ON passages.id = survey_set_passages.passage_id " +
+      "WHERE survey_set_passages.survey_set_id = (SELECT survey_set_id FROM user_assignments WHERE user_id = $1) AND passages.id NOT IN (SELECT passage_id FROM responses WHERE user_id = $1) " +
+      "LIMIT 1",
+      [numericUserId]
     );
 
     console.log("Passage result:", passageResult.rows);
