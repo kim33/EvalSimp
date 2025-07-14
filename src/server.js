@@ -1,137 +1,168 @@
-const express = require("express");
-const { Pool } = require("pg");
-const cors = require("cors");
-require("dotenv").config();  // Make sure this is at the top of your file
+const express = require('express');
+const { Pool } = require('pg');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 5004;
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const port = 5009;
 
-// PostgreSQL Database Connection
+// PostgreSQL pool connection
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
+  user: 'postgres',
+  host: 'localhost',
+  database: 'survey_db',
+  password: 'postgres',
+  port: 5432,
 });
+app.use(cors({
+  origin: 'http://localhost:5004',
+  methods: ['GET', 'POST'],
+}));
+app.use(bodyParser.json());
 
-pool.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch(err => console.error("Connection error", err));
-
-app.use(cors());
-
-  
-
-app.use(express.json());
-
-// Route for the root URL (optional)
-app.get("/", (req, res) => {
-  res.send("Server is running...");
-});
-
-
-// Route to handle form submissions
-app.post('/submit', async (req, res) => {
+// Get the next uncompleted passage
+app.get('/api/passages/next', async (req, res) => {
+  const userId = req.query.user_id;
   try {
-    console.log("Received data: ", req.body);
-    const { userId, passageId, understanding, naturalness, simplicity, understanding_comment, naturalness_comment, simplicity_comment, complex_a, complex_b} = req.body;
 
-    if (!userId) {
-      return res.status(400).json({message : "User ID is required"});
-    }
-    // Insert the data into the PostgreSQL responses table
-    const query = `
-      INSERT INTO responses (
-        user_id, 
-        passage_id,
-        understanding,
-        naturalness,
-        simplicity,
-        understanding_comment,
-        naturalness_comment,
-        simplicity_comment,
-        complex_a,
-        complex_b
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING id
-    `;
-
-    const values = [
-      userId,
-      passageId,
-      understanding,
-      naturalness,
-      simplicity,
-      understanding_comment,
-      naturalness_comment,
-      simplicity_comment,
-      complex_a,
-      complex_b
-    ];
-
-    const result = await pool.query(query, values);
-    res.status(200).send({ message: "Responses saved successfully!", id: result.rows[0].id });
-  } catch (error) {
-    console.error("Error saving responses:", error);
-    res.status(500).send({ message: "Error saving responses." });
-  }
-});
-
-app.get("/get-passage/:user_id", async (req, res) => {
-  try {
-    const { user_id } = req.params;
-    console.log("Fetching passage for user_id:", user_id);
-
-    // Ensure user_id is correctly received and converted to an integer
-    const numericUserId = parseInt(user_id, 10);
-    if (isNaN(numericUserId)) {
-      console.error("Invalid user_id received:", user_id);
-      return res.status(400).json({ error: "Invalid user ID" });
-    }
-
-    // Find the user's assigned survey set
-    const surveySetResult = await pool.query(
-      "SELECT survey_set_id FROM user_assignments WHERE user_id = $1",
-      [numericUserId]
-    );
-    console.log("Survey set result:", surveySetResult.rows); 
-
-    if (surveySetResult.rows.length === 0) {
-      console.error("User not assigned to any survey set.");
-      return res.status(404).json({ error: "User not assigned to any survey set." });
-    }
-
-    const surveySetId = surveySetResult.rows[0].survey_set_id;
-    console.log("Assigned survey set ID:", surveySetId);
-
-    // Get a random passage from the assigned survey set
-    const passageResult = await pool.query(
-      "SELECT passages.* FROM passages " +
-      "INNER JOIN survey_set_passages ON passages.id = survey_set_passages.passage_id " +
-      "WHERE survey_set_passages.survey_set_id = (SELECT survey_set_id FROM user_assignments WHERE user_id = $1) AND passages.id NOT IN (SELECT passage_id FROM responses WHERE user_id = $1) " +
-      "LIMIT 1",
-      [numericUserId]
+    await pool.query(
+      `INSERT INTO phase2_users (id) VALUES ($1) ON CONFLICT DO NOTHING`,
+      [userId]
     );
 
-    console.log("Passage result:", passageResult.rows);
+    const assigned = await pool.query(
+      `SELECT COUNT(*) FROM phase2_user_passages WHERE user_id = $1`,
+      [userId]
+    );
 
-    if (passageResult.rows.length === 0) {
-      console.error("No passages found for this survey set.");
-      return res.status(404).json({ error: "No passages found for this survey set." });
+    if (parseInt(assigned.rows[0].count) === 0) {
+      // Select up to 7 passages not assigned to anyone yet
+      const unassignedPassages = await pool.query(`
+        SELECT id FROM updated_passages
+        WHERE id NOT IN (
+          SELECT passage_id FROM phase2_user_passages
+        )
+        ORDER BY id
+        LIMIT 8
+      `);
+
+      const insertValues = unassignedPassages.rows
+        .map((row) => `('${userId}', ${row.id})`)
+        .join(',');
+
+      if (insertValues) {
+        await pool.query(
+          `INSERT INTO phase2_user_passages (user_id, passage_id) VALUES ${insertValues}`
+        );
+      }
     }
 
-    res.json(passageResult.rows[0]);
+    // Step 3: Get the next passage the user hasn't completed
+    const nextPassage = await pool.query(`
+      SELECT p.*
+      FROM updated_passages p
+      JOIN phase2_user_passages up ON p.id = up.passage_id
+      WHERE up.user_id = $1
+      AND NOT EXISTS (
+        SELECT 1 FROM final_simplified_summary fs
+        WHERE fs.user_id = $1 AND fs.passage_id = p.id
+      )
+      LIMIT 1
+    `, [userId]);
 
-  } catch (error) {
-    console.error("Error fetching passage:", error);
-    res.status(500).json({ error: "Error fetching passage", details: error.message });
+
+    if (nextPassage.rows.length === 0) {
+      return res.json({ done: true });
+    }
+    if (nextPassage.rows.length > 0) {
+      const passageId = nextPassage.rows[0].id;
+
+      // Record the start time if it's not already set
+      await pool.query(`
+        UPDATE phase2_user_passages
+        SET started_at = NOW()
+        WHERE user_id = $1 AND passage_id = $2 AND started_at IS NULL
+      `, [userId, passageId]);
+
+      return res.json(nextPassage.rows[0]);
+    }
+
+  } catch (err) {
+    console.error('Error fetching next passage:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+    /*** 
+     * const result = await pool.query(
+      `SELECT * FROM updated_passages WHERE completed = FALSE LIMIT 1`
+      if (result.rows.length === 0) {
+          return res.status(404).json({ message: 'No more passages to simplify.' });
+        }
+        res.json(result.rows[0]);
+      } catch (err) {
+        console.error('Error fetching next passage:', err);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+    );*/
+    
+    
 
-// Start the server
+// Submit simplified summary
+// POST: Submit simplified summary to a different table
+app.post('/api/passages/submit', async (req, res) => {
+  const { user_id, passage_id, summary } = req.body;
+
+  if (!user_id || !passage_id || !summary) {
+    return res.status(400).json({ error: 'Missing user_id, passage_id or summary' });
+  }
+
+  try {
+    // Save submission
+    await pool.query(
+      `INSERT INTO final_simplified_summary (user_id, passage_id, summary)
+       VALUES ($1, $2, $3)`,
+      [user_id, passage_id, summary]
+    );
+
+    await pool.query(`
+      UPDATE phase2_user_passages
+      SET submitted_at = NOW()
+      WHERE user_id = $1 AND passage_id = $2
+    `, [userId, passageId]);
+
+    res.json({ message: 'Summary saved successfully.' });
+  } catch (err) {
+    console.error('Error saving summary:', err);
+    res.status(500).json({ error: 'Failed to save summary' });
+  }
+});
+/*** 
+app.post('/api/passages/submit', async (req, res) => {
+  const { id, summary } = req.body;
+
+  if (!id || !summary) {
+    return res.status(400).json({ error: 'Missing passage ID or summary' });
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO final_simplified_summary (passage_id, summary)
+       VALUES ($1, $2)`,
+      [id, summary]
+    );
+    await pool.query(
+      `UPDATE updated_passages SET completed = TRUE WHERE id = $1`,
+      [id]
+    );
+    res.json({ message: 'Summary saved successfully.' });
+  } catch (err) {
+    console.error('Error saving summary:', err);
+    res.status(500).json({ error: 'Failed to save summary' });
+  }
+});
+*/
+
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

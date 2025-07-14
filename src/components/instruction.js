@@ -5,39 +5,24 @@ import "./style.css";
 const InstructionPage = ({ onNext }) => {
   return (
     <div className="instruction-container">
-      <h1 className="text-xl font-bold text-center">Welcome to the Survey!</h1>
-      
-      <p className="mt-4 text-justify">
-        Thank you for your participation in this experiment.
-      </p>
+      <h1 className="text-xl font-bold text-center">Thank you for your contribution!</h1>
+  
 
       <h2 className="mt-6 font-semibold">Survey Tasks:</h2>
       <ul className="list-disc ml-6 mt-2">
-        <li>
-          <strong>A.</strong> Evaluate whether the passages present a clear argument with simple sentence structures and no grammatical errors.
-        </li>
-        <li>
-          <strong>B.</strong> Identify complex sentences, phrases, or words that require simplification for better understanding.
-        </li>
+        <li>Your task is to further simplify the given Annotated Summary, particularly focusing on the phrases inside [ ]. .</li>
+        <li>The goal is to make the text clearer, more readable, and accessible while preserving the original meaning.</li>
+        <li>This will help us create high-quality, simplified scientific text.</li>
+
       </ul>
-      
-      <p className="mt-4 text-justify">
-        You will receive <strong>10 pairs</strong> of computer science research paper summaries.
-      </p>
 
       <h2 className="mt-6 font-semibold">Your Tasks:</h2>
       <ul className="list-disc ml-6 mt-2">
-        <li>Read both passages carefully.</li>
-        <li>Identify the main argument of each summary.</li>
-        <li>Analyze the different approaches used in each passage.</li>
+        <li>1. Read the Original Summary: This is the original, complex version of the scientific text.        </li>
+        <li>2. Review the Annotated Summary: This version has already simplified but may still contain complex phrases.</li>
+        <li>3. Further Simplify Phrases in [ ]: Focus on the phrases inside [ ] and rewrite them in simpler terms while keeping their meaning intact. </li>
+        <li>4. Ensure Readability: The final version should be clear and easy to understand for a general audience.</li>
       </ul>
-
-      <h2 className="mt-6 font-semibold">Survey Questions:</h2>
-      <ol className="list-decimal ml-6 mt-2">
-        <li>Select the passage that best presents a clear argument, fluent English, and efficient sentence structure.</li>
-        <li>Identify complex sentences that need to be simplified further.</li>
-      </ol>
-
       <p className="mt-4 font-semibold">
         Please Click "Next" to check the sample question.
       </p>

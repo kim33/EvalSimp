@@ -1,254 +1,122 @@
 import React, { useState } from "react";
-import "./style.css";
+import ChecklistModal from "./checklist";
+import './style.css'; 
 
-const SamplePage = ({ onNext, onBack }) => {
-  const [hoveredSentenceA, setHoveredSentenceA] = useState(null); 
-  const [hoveredSentenceB, setHoveredSentenceB] = useState(null); 
-  const [selectedSentencesA, setSelectedSentencesA] = useState([]);
-  const [selectedSentencesB, setSelectedSentencesB] = useState([]);
-  const [answers, setAnswers] = useState({
-    understanding: "",
-    naturalness: "",
-    simplicity: "",
-  });
+const passageTextA = `Recent advancements in machine learning have led to significant improvements in natural language processing (NLP).  
+In this study, researchers introduce a novel deep learning architecture that integrates convolutional neural networks with recurrent neural networks to enhance text understanding. 
+Experimental results on benchmark datasets show that the proposed model achieves a 15% improvement in accuracy over traditional methods. 
+Additionally, the model demonstrates robust performance in handling noisy data and long-range dependencies within text. 
+The authors discuss potential applications in sentiment analysis, machine translation, and information extraction, while also outlining future work to further optimize the model’s efficiency and scalability.`;
 
-  const [comments, setComments] = useState({
-    understanding: "",
-    naturalness: "",
-    simplicity: "",
-  });
+const passageTextB = `Recent advances in machine learning have greatly improved natural language processing (NLP). 
+In this study, researchers present a new deep learning model that combines [convolutional] and [recurrent] neural networks to better understand text. 
+Tests on standard datasets show that this model improves accuracy by 15% compared to traditional methods. 
+The model also performs well with noisy data and long-range text dependencies. 
+The authors highlight potential uses in [sentiment analysis], machine translation, and information extraction, and they plan to continue improving the model’s efficiency and scalability.`;
 
-  const handleCommentChange = (event) => {
-    const { name, value } = event.target;
-    setComments((prevComments) => ({
-      ...prevComments,
-      [name]: value,
-    }));
-  };
-  const handleDropdownChange = (event) => {
-    const { name, value } = event.target;
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [name]: value,
-    }));
+export default function SamplePage({ onNext, onBack }) {
+  const [summary, setSummary] = useState("");
+  const [showGuidelines, setShowGuidelines] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
+
+  const handleNext = () => {
+    setShowChecklist(true);
   };
 
-  const handleRadioChange = (event) => {
-    const { name, value } = event.target;
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [name]: value,
-    }));
+  const confirmNext = () => {
+    setShowChecklist(false);
+    onNext(); // Proceed to next page
   };
 
-  const passageTextA = 'Recent advancements in machine learning have led to significant improvements in natural language processing (NLP).  In this study, researchers introduce a novel deep learning architecture that integrates convolutional neural networks with recurrent neural networks to enhance text understanding. Experimental results on benchmark datasets show that the proposed model achieves a 15% improvement in accuracy over traditional methods. Additionally, the model demonstrates robust performance in handling noisy data and long-range dependencies within text. The authors discuss potential applications in sentiment analysis, machine translation, and information extraction, while also outlining future work to further optimize the model’s efficiency and scalability.';
-
-  const passageTextB = `Recent advances in machine learning have greatly improved natural language processing (NLP). 
-  In this study, researchers present a new deep learning model that combines convolutional and recurrent neural networks to better understand text. 
-  Tests on standard datasets show that this model improves accuracy by 15% compared to traditional methods. 
-  The model also performs well with noisy data and long-range text dependencies. 
-  The authors highlight potential uses in sentiment analysis, machine translation, and information extraction, and they plan to continue improving the model’s efficiency and scalability.`;
-
-  const handleSentenceClick = (sentence, passageChoice) => {
-    if (passageChoice === "A") {
-      setSelectedSentencesA((prevSelected) => {
-        let updatedSentences;
-        if (prevSelected.includes(sentence)) {
-          // If already selected, remove it
-          updatedSentences = prevSelected.filter((s) => s !== sentence);
-        } else {
-          // Otherwise, add it
-          updatedSentences = [...prevSelected, sentence];
-        }
-        
-        // Update textarea with selected sentences
-        setComments((prevComments) => ({
-          ...prevComments,
-          complex_a: updatedSentences.join(",\n "),
-        }));
-  
-        return updatedSentences;
-      });
-    } else if (passageChoice === "B") {
-      setSelectedSentencesB((prevSelected) => {
-        let updatedSentences;
-        if (prevSelected.includes(sentence)) {
-          // If already selected, remove it
-          updatedSentences = prevSelected.filter((s) => s !== sentence);
-        } else {
-          // Otherwise, add it
-          updatedSentences = [...prevSelected, sentence];
-        }
-        
-        // Update textarea with selected sentences
-        setComments((prevComments) => ({
-          ...prevComments,
-          complex_b: updatedSentences.join(",\n "),
-        }));
-  
-        return updatedSentences;
-      });
-    }
-
+  const cancelNext = () => {
+    setShowChecklist(false); // Let user edit more
   };
+
+
   return (
-    <div className="evaluation-container">
-      <h2 className="evaluation-title">Sample Passages</h2>
-        <p className="instruction-text">
-          Following is the sample question for the survey. You DO NOT NEEED TO ANSWER. </p>
-         <p className="instruction-text"> 
-          Throughout the survey, you will be asked to read two passages and evaluate them regarding with clear argument, English grammar, and level of simplicity. 
-        </p>
-        <p className="instruction-text">
-          Please read Passage 1 and Passage 2 carefully. While reading, please select complex sentences from each passage.
-          <br /> Possible complex sentence : sentence with more than 20 words or sentences containing "although", "while", "whereas", etc.
-        </p>
-      <div className="passages-container">
-        <div className="passage-box">
-          <h3 className="passage-title">Passage 1</h3>
-          <p className="passage-text">
-          {passageTextA.split(/(?<=[.!?])\s+/).map((sentence, index) => (
-          <span
-            key={index}
-            className={`clickable-sentence 
-              ${selectedSentencesA.includes(sentence) ? "selected" : ""} 
-              ${hoveredSentenceA === sentence ? "hovered" : ""}`}
-            onClick={() => handleSentenceClick(sentence, "A")}
-            onMouseEnter={() => setHoveredSentenceA(sentence)}
-            onMouseLeave={() => setHoveredSentenceA(null)}
-          >
-            {sentence}{" "}
-          </span>
-        ))}
+    <div
+      className="flex justify-center bg-gray-50 p-6"
+      style={{ minHeight: '100vh' }}
+    >
+      <div className="max-w-4xl w-full bg-white rounded-lg shadow-lg p-8 space-y-8">
+        <h1 className="text-3xl font-bold text-center mb-6">
+          📝 Sample Task: Simplify the Annotated Summary
+        </h1>
+
+        {/* Instructions and Textarea */}
+        <section className="bg-white p-4 rounded shadow space-y-3">
+          <h2 className="text-xl font-semibold mb-2">🎯 Your Task</h2>
+          <ul className="list-disc list-inside text-gray-700">
+            <li>
+              Rewrite the <strong>Annotated Simplified Summary</strong> to make it easier to
+              understand while keeping the scientific meaning.
+            </li>
+            <li>
+              Focus on simplifying or explaining the phrases <mark className="bg-yellow-300">inside brackets [ ]</mark>.
+            </li>
+            <li><strong>Keep key technical terms</strong>  but feel free to add brief explanations if needed.</li>
+            <li><strong>Use clear, concise language</strong>  suitable for a general audience with some science background.</li>
+            <li>Write your final summary as <strong> one coherent paragraph.</strong> </li>
+          </ul>
+          
+        </section>
+        {/* Original Summary */}
+        <section className="passage-box">
+          <h2 className="text-xl font-semibold mb-2">📚 Original, Complex Summary</h2>
+          <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{passageTextA}</p>
+        </section>
+
+        {/* Annotated Simplified Summary */}
+        <section className="passage-box">
+          <h2 className="text-xl font-semibold mb-2">🔍 Phase 1 : AI Simplified Summary</h2>
+          <p className="text-blue-900 leading-relaxed whitespace-pre-wrap">
+          {passageTextB.split(/(\[[^\]]+\])/).map((part, i) => {
+            const trimmed = part.trim();
+            return trimmed.startsWith("[") && trimmed.endsWith("]") ? (
+              <mark
+                key={i}
+                className="bg-yellow-300 font-semibold px-1 rounded cursor-help"
+                title="Simplify this phrase or explain it clearly"
+              >
+                {part}
+              </mark>
+            ) : (
+              <span key={i}>{part}</span>
+            );
+          })}
           </p>
-        </div>
-
-        <div className="passage-box">
-          <h3 className="passage-title">Passage 2</h3>
-          <p className="passage-text">
-          {passageTextB.split(/(?<=[.!?])\s+/).map((sentence, index) => (
-          <span
-            key={index}
-            className={`clickable-sentence 
-              ${selectedSentencesB.includes(sentence) ? "selected" : ""} 
-              ${hoveredSentenceB === sentence ? "hovered" : ""}`}
-            onClick={() => handleSentenceClick(sentence, "B")}
-            onMouseEnter={() => setHoveredSentenceB(sentence)}
-            onMouseLeave={() => setHoveredSentenceB(null)}
+        </section>
+        <section className="passage-box">
+          <h2 className="text-xl font-semibold mb-2">🏅 Your Gold Simplified Summary</h2>
+          <textarea
+              placeholder="This paper introduces a new deep learning model that combines convolutional neural networks and recurrent neural networks to improve understanding of text. Tests on standard datasets show that this model increases accuracy by 15% compared to traditional approaches. It also handles noisy data and long-range dependencies effectively. The authors suggest this model can be used in sentiment analysis (detecting opinions), machine translation, and information extraction, and they aim to further enhance its efficiency and scalability."
+              className="textarea-input"
+              rows={6}
+              style={{ width: "95%", marginTop: "10px" }}
+              onChange={(e) => setSummary(e.target.value)}
+          />
+        </section>
+        
+        {/* Navigation Buttons */}
+        <div className="button-container">
+          <button
+            onClick={onBack}
+            className="button button-back"
           >
-            {sentence}{" "}
-          </span>
-        ))}
-          </p>
+            ← Back
+          </button>
+          <button
+            onClick={handleNext}
+            className="button button-next"
+          >
+            Start Survey →
+          </button>
+          {showChecklist && (
+            <ChecklistModal onConfirm={confirmNext} onCancel={cancelNext} />
+          )}
         </div>
       </div>
-
-      <h2 className="evaluation-title">Evaluation</h2>
-
-      <div className="question-container">
-        <label className="question-label">
-          Which one is easier to understand the main objective of the paper?
-          <span className="question-description">
-            Consider: Easier words, clear phrases, no ambiguity.
-          </span>
-        </label>
-        <select name="understanding" onChange={handleDropdownChange} className="select-box" required>
-          <option value="">Select</option>
-          <option value="Passage A">Passage 1</option>
-          <option value="Passage B">Passage 2</option>
-          <option value="No Difference">No Difference</option>
-        </select>
-        <textarea name="understanding" value={comments.understanding} onChange={handleCommentChange} className="comment-box" placeholder="Please explain your choice with short justification" required minLength={30}/>
-      </div>
-
-      <div className="question-container">
-        <label className="question-label">
-          Which one sounds more natural in English?
-          <span className="question-description">
-          Please consider: <br />
-          No grammatical error in the phrase or sentence. <br />
-          Natural and fluent English expressions.
-          </span>
-        </label>
-        <select name="naturalness" onChange={handleDropdownChange} className="select-box" required>
-          <option value="">Select</option>
-          <option value="Passage A">Passage 1</option>
-          <option value="Passage B">Passage 2</option>
-          <option value="No Difference">No Difference</option>
-        </select>
-        <textarea name="naturalness" value={comments.naturalness} onChange={handleCommentChange} className="comment-box" placeholder="Please explain your choice with short justification" required minLength={30}/>
-      </div>
-
-      <div className="question-container">
-        <label className="question-label">
-          Which one uses simple sentence structure?
-          <span className="question-description">
-          Please consider: <br />
-          Sentences completed within 2 rows. <br />
-          Catch the main content without reading the whole paragraph.
-          </span>
-        </label>
-        <select name="simplicity" onChange={handleDropdownChange} className="select-box" required>
-          <option value="">Select</option>
-          <option value="Passage A">Passage 1</option>
-          <option value="Passage B">Passage 2</option>
-          <option value="No Difference">No Difference</option>
-        </select>
-        <textarea name="simplicity" value={comments.simplicity} onChange={handleCommentChange} className="comment-box" placeholder="Please explain your choice with short justification" required minLength={30}/>
-      </div>
-
-      <div className="evaluation-container comment-container">
-        <label className="question-label">
-        <h3>Please review selected sentences from Passage 1. <br /> If there are certain complex phrases in the selected sentence, please mark them with [ ] in the textbox below</h3>
-        </label>
-        <span className="instructiont-text">
-                  <p>Please consider : Is certain phrase too technical? Does it require additioanl explanation?</p>
-                  <p>Example : "The authors highlight potential uses in [sentiment analysis], machine translation, and information extraction, and they plan to continue improving the model’s efficiency and scalability".</p>
-                </span>
-        <textarea
-          name="improvement_suggestions"
-          value={selectedSentencesA.join(",\n ")}
-          onChange={handleCommentChange}
-          className="textarea-input"
-          placeholder="Please select complex sentences that need to be improved."
-          rows="5"
-          style={{ width: "100%", marginTop: "10px" }}
-          minLength={30}
-          required
-        />
-      </div>
-
-      <div className="evaluation-container comment-container">
-        <label className="question-label">
-        <h3>Please review selected sentences from Passage 1. <br /> If there are certain complex phrases in the selected sentence, please mark them with [ ] in the textbox below</h3>
-        </label>
-        <span className="instructiont-text">
-                  <p>Please consider : Is certain phrase too technical? Does it require additioanl explanation?</p>
-                  <p>Example : "The authors highlight potential uses in [sentiment analysis], machine translation, and information extraction, and they plan to continue improving the model’s efficiency and scalability".</p>
-                </span>
-        <textarea
-          name="improvement_suggestions"
-          value={selectedSentencesB.join(",\n ")}
-          onChange={handleCommentChange}
-          className="textarea-input"
-          placeholder="Please select complex sentences that need to be improved."
-          rows="5"
-          style={{ width: "100%", marginTop: "10px" }}
-          minLength={30}
-          required
-        />
-      </div>
-
-      <div className="button-container">
-        <button onClick={onBack} className="button button-back">
-          ← Back
-        </button>
-        <button onClick={onNext} className="button button-next">
-          Start Survey →
-        </button>
-      </div>
+      {/* Modal Overlay */}
     </div>
   );
-};
-
-export default SamplePage;
+}
